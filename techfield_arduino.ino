@@ -2,12 +2,14 @@
 #include "Photoresistor.h"
 #include "dht11.h"
 #include "Moisture.h"
+#include <ArduinoJson.h>
 
 
 //Variables globals
 const int dhtPin = A1;
 const int ldrPin = A0;
 const int moisturePin = A2;
+const int test = 0;
 
 float lluminositat, humitatTerreny;
 int temperaturaAmbient, humitatAmbient;
