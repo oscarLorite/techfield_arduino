@@ -15,6 +15,11 @@ float lluminositat, humitatTerreny;
 int temperaturaAmbient, humitatAmbient;
 
 
+//JSON inicialitzacions
+const int BUFFER_SIZE = JSON_OBJECT_SIZE (5);
+StaticJsonDocument<BUFFER_SIZE> doc;
+
+
 //Inicialitzacions
 dht11 dht11;
 Photoresistor ldr(ldrPin);
@@ -27,9 +32,9 @@ void setup() {
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
   mesurarDades();
   escriureConsola();
+  serialitzarJson();
   delay(1000);
 
 }
@@ -82,4 +87,12 @@ void escriureConsola(){
   Serial.print(humitatTerreny);
   Serial.println(" %");
   Serial.println("------------------------");
+}
+
+void serialitzarJson(){
+  doc["sensorLDR"] = lluminositat;
+  doc["sensorDHT11temp"] = temperaturaAmbient;
+  doc["sensorDHT11humi"] = humitatAmbient;
+  doc["sensorMoisture"] = humitatTerreny;
+  serializeJsonPretty(doc,Serial);
 }
