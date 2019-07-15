@@ -11,8 +11,15 @@ const int ldrPin = A0;
 const int moisturePin = A2;
 const int test = 0;
 
-float lluminositat, humitatTerreny;
-int temperaturaAmbient, humitatAmbient;
+//Estructura de Dades
+struct DadesSensades
+{
+  float lluminositat; //Valor lux sensor LDR
+  int humitatTerreny; //Valor moisture sensor
+  int temperaturaAmbient; //Valor temp. DHT11
+  int humitatAmbient; //Valor humitat DHT11
+  int data; //Cambiar a tipus date. 
+};
 
 
 //JSON inicialitzacions
@@ -21,49 +28,52 @@ StaticJsonDocument<BUFFER_SIZE> doc;
 
 
 //Inicialitzacions
+DadesSensades dataValue;
+
 dht11 dht11;
 Photoresistor ldr(ldrPin);
 Moisture moisture(moisturePin);
 
+
 void setup() {
   Serial.begin(9600);
   inicialitzacionsVariables();
-  
 }
 
 void loop() {
   mesurarDades();
-  escriureConsola();
+  //escriureConsola();
   serialitzarJson();
   delay(1000);
 
 }
 
 void inicialitzacionsVariables(){
-  lluminositat = 0;
-  temperaturaAmbient = 0;
-  humitatAmbient = 0;
-  humitatTerreny = 0.0;
+  dataValue.lluminositat = 0;
+  dataValue.temperaturaAmbient = 0;
+  dataValue.humitatAmbient = 0;
+  dataValue.humitatTerreny = 0;
+  dataValue.data = 0;
 }
 
 void obtenirLluminositat(){
   ldr.readLight();
-  lluminositat = ldr.lux;
+  dataValue.lluminositat = ldr.lux;
 }
 
 void obtenirDht11(){
   if (dht11.read(dhtPin) == 2){ //Lectura correcta
-    temperaturaAmbient = dht11.temperature;
-    humitatAmbient = dht11.humidity; 
+    dataValue.temperaturaAmbient = dht11.temperature;
+    dataValue.humitatAmbient = dht11.humidity; 
   }else{ //Error checksum(2) o lectura incorrecta
-    temperaturaAmbient = -1000; //Dades Errònies
-    humitatAmbient = -1000;
+    dataValue.temperaturaAmbient = -1000; //Dades Errònies
+    dataValue.humitatAmbient = -1000;
   }
 }
 
 void obtenirHumitatTerreny(){
   moisture.readMappedValue();
-  humitatTerreny = moisture.moistureMappedValue;
+  dataValue.humitatTerreny = moisture.moistureMappedValue;
 }
 
 void mesurarDades(){
@@ -75,24 +85,25 @@ void mesurarDades(){
 void escriureConsola(){
   Serial.println("-----DADES TECHFIELD----");
   Serial.print("Lluminositat: ");
-  Serial.print(lluminositat);
+  Serial.print(dataValue.lluminositat);
   Serial.println(" lux.");
   Serial.print("Temperatura ambient: ");
-  Serial.print(temperaturaAmbient);
+  Serial.print(dataValue.temperaturaAmbient);
   Serial.println(" ºC");
   Serial.print("Humitat ambiental: ");
-  Serial.print(humitatAmbient);
+  Serial.print(dataValue.humitatAmbient);
   Serial.println(" %");
   Serial.print("Humitat terreny: ");
-  Serial.print(humitatTerreny);
+  Serial.print(dataValue.humitatTerreny);
   Serial.println(" %");
   Serial.println("------------------------");
 }
 
 void serialitzarJson(){
-  doc["sensorLDR"] = lluminositat;
-  doc["sensorDHT11temp"] = temperaturaAmbient;
-  doc["sensorDHT11humi"] = humitatAmbient;
-  doc["sensorMoisture"] = humitatTerreny;
+  doc["sensorLDR"] = dataValue.lluminositat;
+  doc["sensorDHT11temp"] = dataValue.temperaturaAmbient;
+  doc["sensorDHT11humi"] = dataValue.humitatAmbient;
+  doc["sensorMoisture"] = dataValue.humitatTerreny;
+  doc["date"] = dataValue.data;
   serializeJsonPretty(doc,Serial);
 }
