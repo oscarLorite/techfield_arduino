@@ -34,6 +34,7 @@ struct DadesSensades
  * Variables guarden valors 0 ó -1:
  * 0 => Lectura correcta 
  * -1 => Error de lectura
+ * 
  */
 struct ControlErrors
 {
@@ -102,7 +103,7 @@ void obtenirDht11(){
 }
 
 void obtenirHumitatTerreny(){
-  moisture.readMappedValue();
+  error.errHumitatTerreny = moisture.readMappedValue();
   dataValue.humitatTerreny = moisture.moistureMappedValue;
 }
 
@@ -131,6 +132,8 @@ void escriureConsola(){
   Serial.print("Humitat terreny: ");
   Serial.print(dataValue.humitatTerreny);
   Serial.println(" %");
+  Serial.print("Detecció Error");
+  Serial.println(error.errHumitatTerreny);
   Serial.println("------------------------");
 }
 

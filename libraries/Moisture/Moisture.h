@@ -9,8 +9,8 @@ class Moisture
 		Moisture(uint8_t _pin);
 		int moistureValue;
 		float moistureMappedValue;
-		void readAnalogValue(void);
-		void readMappedValue(void);
+		int readAnalogValue(void);
+		int readMappedValue(void);
 	protected:
 		uint8_t pin;
 		const  int MaxCapacitiveValue = 630; //Completly dry sensor
