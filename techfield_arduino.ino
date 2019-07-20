@@ -12,6 +12,10 @@ const int moisturePin = A2;
 const int test = 0;
 
 //Estructura de Dades
+
+/** ESTRUCTURA DE DADES PER DESAR ELS VALORS DELS SENSORS
+ * Permet desar els valors obtinguts dels sensors
+ */
 struct DadesSensades
 {
   float lluminositat; //Valor lux sensor LDR
@@ -19,6 +23,25 @@ struct DadesSensades
   int temperaturaAmbient; //Valor temp. DHT11
   int humitatAmbient; //Valor humitat DHT11
   int data; //Cambiar a tipus date. 
+};
+
+/** ESTRUCUTRA DE DADES PER SABER L'ESTAT DEL PROGRAMA
+ * Ens permet saber si ha hagut problemes en les diverses 
+ * tasques que desenvolupa el programa.
+ * 
+ * En cas d'error, induirà a la màquina a fer un reinici. 
+ * 
+ * Variables guarden valors 0 ó -1:
+ * 0 => Lectura correcta 
+ * -1 => Error de lectura
+ */
+struct ControlErrors
+{
+  int errLluminositat; 
+  int errHumitatTerreny; 
+  int errTemperaturaAmbient; 
+  int errHumitatAmbient; 
+  int errData; 
 };
 
 
@@ -29,6 +52,7 @@ StaticJsonDocument<BUFFER_SIZE> doc;
 
 //Inicialitzacions
 DadesSensades dataValue;
+ControlErrors error;
 
 dht11 dht11;
 Photoresistor ldr(ldrPin);
@@ -42,8 +66,8 @@ void setup() {
 
 void loop() {
   mesurarDades();
-  //escriureConsola();
-  serialitzarJson();
+  escriureConsola();
+  //serialitzarJson();
   delay(1000);
 
 }
@@ -54,10 +78,16 @@ void inicialitzacionsVariables(){
   dataValue.humitatAmbient = 0;
   dataValue.humitatTerreny = 0;
   dataValue.data = 0;
+
+  error.errLluminositat = 0; 
+  error.errHumitatTerreny = 0; 
+  error.errTemperaturaAmbient = 0; 
+  error.errHumitatAmbient = 0; 
+  error.errData = 0; 
 }
 
 void obtenirLluminositat(){
-  ldr.readLight();
+  error.errLluminositat = ldr.readLight();
   dataValue.lluminositat = ldr.lux;
 }
 
@@ -87,12 +117,17 @@ void escriureConsola(){
   Serial.print("Lluminositat: ");
   Serial.print(dataValue.lluminositat);
   Serial.println(" lux.");
+  Serial.print("Detecció Error");
+  Serial.println(error.errLluminositat);
+  
   Serial.print("Temperatura ambient: ");
   Serial.print(dataValue.temperaturaAmbient);
   Serial.println(" ºC");
+  
   Serial.print("Humitat ambiental: ");
   Serial.print(dataValue.humitatAmbient);
   Serial.println(" %");
+  
   Serial.print("Humitat terreny: ");
   Serial.print(dataValue.humitatTerreny);
   Serial.println(" %");

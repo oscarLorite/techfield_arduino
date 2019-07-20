@@ -8,7 +8,7 @@ class Photoresistor
 	public:
 		Photoresistor(uint8_t _pin);
 		float lux;
-		void readLight(void);
+		int readLight(void);
 	protected:
 		uint8_t pin;
 		const  float ADCres = 1023.0;
