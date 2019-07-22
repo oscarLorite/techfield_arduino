@@ -11,6 +11,9 @@ const int ldrPin = A0;
 const int moisturePin = A2;
 const int test = 0;
 
+//Contador d'errors
+int cntErr = 0;
+
 //Estructura de Dades
 
 /** ESTRUCTURA DE DADES PER DESAR ELS VALORS DELS SENSORS
@@ -102,13 +105,53 @@ void mesurarDades(){
   obtenirDht11();
   obtenirHumitatTerreny();
 }
+
+/* FUNCIÓ QUE COMPROVA LA CORRECTA LECTURA DE LES DADES
+ * 
+ * 
+ * Retorna:
+ * 0 => Lectura correcta.
+ * -1 => Alguna de les lectures és incorrecta. 
+ */
+int comprovarDades(){
+  int estatLectura = 0;
+
+  if (error.errLluminositat != 0 || error.errHumitatTerreny != 0 || error.errDht11 != 0)
+  {
+    estatLectura = -1;
+  }
+
+  return estatLectura;  
+}
  
 
-/*
+/** FUNCIÓ WATCHDOG.
+ * Controla el número d'errors de lectura.
+ * Si hi ha errors no envia les dades.
+ * Si NO hi ha errors envia les dades.
  * 
+ * Comptabilitza el número d'errors.
+ * Als 10 errors de lectura fa un reset del programa.
  */
 void watchDog(){
+  if (comprovarDades() == 0) //Totes les lectures correctes
+  {
+    escriureConsola();
+    //serialitzarJson();
+  }else
+  {
+    escriureConsolaError();
   
+    cntErr++; //Incrementar cnt error.
+
+    if(cntErr >= 10)
+    {
+      Serial.println("Procedint a resetejar....");
+      delay(100);
+      resetFunc();
+      Serial.println("Resetejat!");
+    }
+  }
 }
 
 void escriureConsola(){
@@ -137,6 +180,14 @@ void escriureConsola(){
   Serial.println("------------------------");
 }
 
+void escriureConsolaError(){
+  Serial.println("-----ERROR: DADES TECHFIELD----");
+  Serial.println("Hi ha un error en les lectures.");
+  Serial.print("Num. d'errors de lectura comptabilitzats: ");
+  Serial.println(cntErr);
+  Serial.println("------------------------");
+}
+
 void serialitzarJson(){
   doc["sensorLDR"] = dataValue.lluminositat;
   doc["sensorDHT11temp"] = dataValue.temperaturaAmbient;
@@ -151,27 +202,9 @@ void setup() {
   inicialitzacionsVariables();
 }
   
-  int cnt = 0;//BORRAR
 
 void loop() {
   mesurarDades();
-  comprovarDades();
-
-  si -> Dades Ok. Escirure per consola
-  sino -> Escriure error lectura i no enviar dades. Incrementar contador
-    si -> cnt més gran de 10. fer reset. 
-    
-  escriureConsola();
-  //serialitzarJson();
+  watchDog();
   delay(1000);
-
-  while(cnt >= 10)//BORRAR
-  {
-    resetFunc();
-    Serial.println("neverHappens");
-  }
-  Serial.println(cnt);
-  cnt++;
-
-
 }
