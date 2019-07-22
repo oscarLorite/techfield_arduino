@@ -40,8 +40,7 @@ struct ControlErrors
 {
   int errLluminositat; 
   int errHumitatTerreny; 
-  int errTemperaturaAmbient; 
-  int errHumitatAmbient; 
+  int errDht11;
   int errData; 
 };
 
@@ -60,18 +59,11 @@ Photoresistor ldr(ldrPin);
 Moisture moisture(moisturePin);
 
 
-void setup() {
-  Serial.begin(9600);
-  inicialitzacionsVariables();
-}
-
-void loop() {
-  mesurarDades();
-  escriureConsola();
-  //serialitzarJson();
-  delay(1000);
-
-}
+/* FUNCIÓ RESET 
+ * Funció que permetrà ressetejar la placa Arduino.
+ * Copiarà un 0 a la posició de memòria @ 0X0000.
+ */
+void(* resetFunc) (void) = 0;
 
 void inicialitzacionsVariables(){
   dataValue.lluminositat = 0;
@@ -82,28 +74,26 @@ void inicialitzacionsVariables(){
 
   error.errLluminositat = 0; 
   error.errHumitatTerreny = 0; 
-  error.errTemperaturaAmbient = 0; 
-  error.errHumitatAmbient = 0; 
+  error.errDht11 = 0;
   error.errData = 0; 
 }
 
 void obtenirLluminositat(){
   error.errLluminositat = ldr.readLight();
-  dataValue.lluminositat = ldr.lux;
+  
+  dataValue.lluminositat = ldr.lux; 
 }
 
 void obtenirDht11(){
-  if (dht11.read(dhtPin) == 2){ //Lectura correcta
-    dataValue.temperaturaAmbient = dht11.temperature;
-    dataValue.humitatAmbient = dht11.humidity; 
-  }else{ //Error checksum(2) o lectura incorrecta
-    dataValue.temperaturaAmbient = -1000; //Dades Errònies
-    dataValue.humitatAmbient = -1000;
-  }
+  error.errDht11 = dht11.read(dhtPin);
+  
+  dataValue.temperaturaAmbient = dht11.temperature;
+  dataValue.humitatAmbient = dht11.humidity;
 }
 
 void obtenirHumitatTerreny(){
   error.errHumitatTerreny = moisture.readMappedValue();
+   
   dataValue.humitatTerreny = moisture.moistureMappedValue;
 }
 
@@ -112,13 +102,21 @@ void mesurarDades(){
   obtenirDht11();
   obtenirHumitatTerreny();
 }
+ 
+
+/*
+ * 
+ */
+void watchDog(){
+  
+}
 
 void escriureConsola(){
   Serial.println("-----DADES TECHFIELD----");
   Serial.print("Lluminositat: ");
   Serial.print(dataValue.lluminositat);
   Serial.println(" lux.");
-  Serial.print("Detecció Error");
+  Serial.print("Detecció Error: ");
   Serial.println(error.errLluminositat);
   
   Serial.print("Temperatura ambient: ");
@@ -128,11 +126,13 @@ void escriureConsola(){
   Serial.print("Humitat ambiental: ");
   Serial.print(dataValue.humitatAmbient);
   Serial.println(" %");
+   Serial.print("Detecció Error DHT11: ");
+  Serial.println(error.errDht11);
   
   Serial.print("Humitat terreny: ");
   Serial.print(dataValue.humitatTerreny);
   Serial.println(" %");
-  Serial.print("Detecció Error");
+  Serial.print("Detecció Error: ");
   Serial.println(error.errHumitatTerreny);
   Serial.println("------------------------");
 }
@@ -144,4 +144,34 @@ void serialitzarJson(){
   doc["sensorMoisture"] = dataValue.humitatTerreny;
   doc["date"] = dataValue.data;
   serializeJsonPretty(doc,Serial);
+}
+
+void setup() {
+  Serial.begin(9600);
+  inicialitzacionsVariables();
+}
+  
+  int cnt = 0;//BORRAR
+
+void loop() {
+  mesurarDades();
+  comprovarDades();
+
+  si -> Dades Ok. Escirure per consola
+  sino -> Escriure error lectura i no enviar dades. Incrementar contador
+    si -> cnt més gran de 10. fer reset. 
+    
+  escriureConsola();
+  //serialitzarJson();
+  delay(1000);
+
+  while(cnt >= 10)//BORRAR
+  {
+    resetFunc();
+    Serial.println("neverHappens");
+  }
+  Serial.println(cnt);
+  cnt++;
+
+
 }
