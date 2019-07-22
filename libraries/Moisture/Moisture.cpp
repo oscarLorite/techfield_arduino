@@ -37,6 +37,7 @@ int Moisture::readAnalogValue(void)
 	return _err;
 }
 
+
 /** funció readAnalogValue()
 * 	Funció que fa la medicijó del sensor Moisture i obté el valor
 * 	en persentantge 
