@@ -21,6 +21,7 @@ int cntErr = 0;
  */
 struct DadesSensades
 {
+  int const idTechfield = 1; //Número identificatiu de la placa. 
   float lluminositat; //Valor lux sensor LDR
   int humitatTerreny; //Valor moisture sensor
   int temperaturaAmbient; //Valor temp. DHT11
@@ -155,12 +156,13 @@ void watchDog(){
 }
 
 void escriureConsola(){
-  Serial.println("-----DADES TECHFIELD----");
+  Serial.print("----DADES TECHFIELD : ");
+  Serial.print(dataValue.idTechfield);
+  Serial.println("----");
+
   Serial.print("Lluminositat: ");
   Serial.print(dataValue.lluminositat);
   Serial.println(" lux.");
-  Serial.print("Detecció Error: ");
-  Serial.println(error.errLluminositat);
   
   Serial.print("Temperatura ambient: ");
   Serial.print(dataValue.temperaturaAmbient);
@@ -169,23 +171,22 @@ void escriureConsola(){
   Serial.print("Humitat ambiental: ");
   Serial.print(dataValue.humitatAmbient);
   Serial.println(" %");
-   Serial.print("Detecció Error DHT11: ");
-  Serial.println(error.errDht11);
   
   Serial.print("Humitat terreny: ");
   Serial.print(dataValue.humitatTerreny);
   Serial.println(" %");
-  Serial.print("Detecció Error: ");
-  Serial.println(error.errHumitatTerreny);
-  Serial.println("------------------------");
+  Serial.println("----------------------------");
 }
 
 void escriureConsolaError(){
-  Serial.println("-----ERROR: DADES TECHFIELD----");
+  Serial.print("---- **ERROR - DADES TECHFIELD : ");
+  Serial.print(dataValue.idTechfield);
+  Serial.println("----");
+  
   Serial.println("Hi ha un error en les lectures.");
   Serial.print("Num. d'errors de lectura comptabilitzats: ");
   Serial.println(cntErr);
-  Serial.println("------------------------");
+  Serial.println("----------------------------------------");
 }
 
 void serialitzarJson(){
