@@ -12,10 +12,11 @@
  *  Informació relativa a la xarxa WiFi - Nom i clau
  *  Informació relativa a la IP enviament dades i port
 */
-String wifiNetwork = "LJHome_2G"; //Número identificatiu de la placa. 
-String wifiPass = "bueeQsR3"; //Valor lux sensor LDR
-String destinationIP = "184.106.153.149";
-String destinationPort = "80";
+String wifiNetwork = "LJHome_2G"; //Nom xarxa WiFi. 
+String wifiPass = "bueeQsR3"; //Contrassenya wifi
+
+String destinationIP = "184.106.153.149"; //IP on volem enviar la petició GET
+String destinationPort = "80"; //Num. del port.
 
 /*SEQÜÈNCIA DE COMANDES AT - INICIAR ESP2866*/
 String ordreConfig[] = {
@@ -35,18 +36,18 @@ String cadena="";
 int variable=10000;
 
 void setup(){ 
-  Serial1.begin(115200);
+ /* Serial1.begin(115200);
   Serial.begin(115200);
   
   Serial1.setTimeout(2000);
   
-  setUpWifi(); 
+  setUpWifi(); */
 }
 
 int i=0;
 void loop()
    { 
-    SendData();
+    /*SendData();
     while(i>5){
       resetWifiModule();
       i=0;
@@ -54,7 +55,7 @@ void loop()
     i++;
 
     
-  delay(10000); //pausa de 10seg
+  delay(10000); //pausa de 10seg*/
    }
 
 void setUpWifi(){

@@ -32,10 +32,15 @@ int Photoresistor::readLight(void)
 	
 	
 	//Control d'error
-	if(_lux < 0)
+	if(_lux < -100.0)
 	{
 		_lux = 0.0;
 		_err = -1;
+	}
+	
+	if(_lux < 0.0)
+	{
+		_lux = 0.0;
 	}
 	
 	lux = _lux;
