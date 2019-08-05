@@ -11,7 +11,9 @@ const int ldrPin = A0;
 const int moisturePin = A2;
 const int test = 0;
 
-int periodeLectura = 10000; //Període entre lectures.
+int periodeLectura = 1000; //Període entre lectures.
+int repBucle = 300;
+//Delay 1000*300 = 300000 -> 5min
 
 //Contador d'errors
 int cntErrSensor = 0;
@@ -230,7 +232,7 @@ void escriureConsola(){
   Serial.println(" ----");
 
   Serial.print("Lectures cada: ");
-  Serial.print(periodeLectura);
+  Serial.print((periodeLectura*repBucle));
   Serial.println(" milisegons.");
 
   Serial.println("*** VALORS SENSORS ***");
@@ -478,6 +480,9 @@ void loop() {
 
   //Escriure per consola.
   escriureConsola();
-  
-  delay(periodeLectura);
+
+  for (int x = 0; x < repBucle; x++)
+  {
+    delay(periodeLectura);
+  }
 }
